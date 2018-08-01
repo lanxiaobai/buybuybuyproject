@@ -72,7 +72,7 @@
                                         <dd>
                                             <div id="buyButton" class="btn-buy">
                                                 <button onclick="cartAdd(this,'/',1,'/shopping.html');" class="buy">立即购买</button>
-                                                <button onclick="cartAdd(this,'/',0,'/cart.html');" class="add">加入购物车</button>
+                                                <button @click="cartAdd" class="add">加入购物车</button>
                                             </div>
                                         </dd>
                                     </dl>
@@ -161,12 +161,14 @@
             </div>
         </div>
         <BackTop></BackTop>
+        <img class="moveImg" v-if="imglist.length!=0" style="display:none" :src="imglist[0].original_path" alt="">
     </div>
 </template>
 
 <script>
 // 放大镜
 import ProductZoomer from 'vue-product-zoomer';
+import $ from 'jquery';
 export default {
     data:function(){
         return {
@@ -268,7 +270,22 @@ export default {
             this.pageSize=size;
             // 重新获取数据
             this.getcoments();
-        }
+        },
+         // 加入购物车
+        cartAdd(){
+        let offset = $('#buyButton .add').offset();
+        // 获取购物车的位置
+        let cartOffset = $('.icon-cart').offset();
+        // console.log(offset);// top left
+        $('.moveImg').show().addClass('move').css(offset).animate(cartOffset,1000,()=>{
+            $('.moveImg').removeClass('move').hide();
+        });
+        // 修改vuex中的数据值 
+        this.$store.commit('buyGood',{
+            goodId:this.$route.params.id, // 商品id
+            goodNum:this.buyNum           // 购买的数量
+        });
+    }
 
     },
  
@@ -315,6 +332,17 @@ export default {
 }
 .control i {
   text-align: center;
+}
+.moveImg{
+    width:40px;
+    position: absolute;
+    top: 0;
+    right: 50px;
+}
+.moveImg.move{
+    transform: scale(.5,.5) rotateZ(3600deg);
+    opacity: .4;
+    transition: transform 1s,opacity  1s;
 }
 </style>
 
