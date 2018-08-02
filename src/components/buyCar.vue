@@ -104,7 +104,9 @@
                     <div class="cart-foot clearfix">
                         <div class="right-box">
                             <button class="button" onclick="javascript:location.href='/index.html';">继续购物</button>
-                            <button class="submit" onclick="formSubmit(this, '/', '/shopping.html');">立即结算</button>
+                            
+                                <button @click="toPayOrder" class="submit">立即结算</button>
+                           
                         </div>
                     </div>
                     <!--购物车底部-->
@@ -204,6 +206,24 @@
                 this.$store.commit('delGoodById',this.message[this.delIndex].id);
                 this.message.splice(this.delIndex,1);
                 this.showmodal=false;
+            },
+            // 判断购物车里的商品是否选中
+            toPayOrder(){
+                let ids='';
+                this.message.forEach(v=>{
+                    if(v.isSelected){
+                        ids+=v.id;
+                        ids+=','
+                    }
+                });
+                if(ids==''){
+                    this.$Message.error('购物车为空!')
+                    return;
+                }
+                // 切掉最后一个逗号
+                ids=ids.slice(0,-1);
+                // 然后跳转
+                this.$router.push('/payOrder/'+ids);
             }
         }
     }

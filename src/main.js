@@ -19,12 +19,17 @@ import Vuex from 'vuex'
 import iView from 'iview';
 import 'iview/dist/styles/iview.css';
 import axios from 'axios';
-axios.defaults.baseURL='http://47.106.148.205:8899';
-Vue.prototype.axios=axios;
-
 import goodsinfo from './components/goodsinfo.vue';
 import buyCar from './components/buyCar.vue';
+import payOrder from './components/payOrder.vue';
+import login from './components/login.vue';
+import orderInfo from './components/orderInfo.vue';
 
+axios.defaults.baseURL='http://47.106.148.205:8899';
+// 让axios携带cookie,否则一登录就退出来
+axios.defaults.withCredentials=true;
+
+Vue.prototype.axios=axios;
 // 使用路由中间件
 Vue.use(VueRouter);
 // 使用ui中间件
@@ -44,13 +49,20 @@ const routes = [
   { path: '/index', component: index },
   { path: '/goodsinfo/:id', component: goodsinfo },
   { path: '/buyCar', component: buyCar },
+  { path: '/payOrder/:ids', component: payOrder },
+  { path: '/orderInfo/:orderid', component: orderInfo },
+  { path: '/login', component: login },
 ]
 
 // 3. 创建 router 实例，然后传 `routes` 配置
 // 你还可以传别的配置参数, 不过先这么简单着吧。
 const router = new VueRouter({
   routes // (缩写) 相当于 routes: routes
-})
+});
+
+
+
+
 // 注册全局过滤器
 Vue.filter('cutTime',function(value){
   return moment(value).format("YYYY年MM月DD日");
@@ -62,7 +74,9 @@ let buyList=JSON.parse( window.localStorage.getItem('buyList')) || {};
 const store = new Vuex.Store({
   state: {
     // buyList:{} 
-    buyList 
+    buyList,
+    isLogin:false,
+    fromPath:'/'
   },
   getters:{
     totalCount(state){
@@ -91,7 +105,37 @@ const store = new Vuex.Store({
     delGoodById(state,id){
       // delete state.buyList[id]
       Vue.delete(state.buyList,id)
+    },
+    changeLogin(state,login){
+      state.isLogin=login;
+    },
+    // 保存来时的路由
+    saveFromPath(state,fromPath){
+      state.fromPath=fromPath;
     }
+  }
+});
+
+//注册全局守卫
+router.beforeEach((to, from, next) => {
+  // 保存来时的路由
+  store.commit('saveFromPath',from.path)
+
+  if(to.path=='/payOrder'){
+    axios.get('/site/account/islogin')
+    .then(response=>{
+      console.log(response);
+      if(response.data.code=='nologin'){
+        next('/login');
+      }else{
+        next();
+      }
+    })
+    .catch(err=>{
+      console.log(err);
+    })
+  }else{
+    next();
   }
 })
 
@@ -103,7 +147,17 @@ new Vue({
   el: '#app',
   router,
   render: h => h(App),
-  store
+  store,
+  // 生命周期函数,一进来就判断用户是否登录
+  beforeCreate(){
+    axios.get('/site/account/islogin')
+    .then(response=>{
+      store.state.isLogin = response.data.code=='logined';
+    })
+    .catch(err=>{
+      // console.log(err);
+    })
+  },
 })
 
 
