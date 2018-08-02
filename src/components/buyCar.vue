@@ -81,11 +81,11 @@
                                     </td>
                                     <td width="84" align="left">{{item.sell_price}}</td>
                                     <td width="104" align="center">
-                                        <el-input-number v-model="item.buycount" size="mini" :min="1" :max="10" label="描述文字"></el-input-number>
+                                        <el-input-number v-model="item.buycount" @change="countChange($event,index)" size="mini" :min="1" :max="10" label="描述文字"></el-input-number>
                                     </td>
                                     <td width="104" align="left">{{item.buycount*item.sell_price}}</td>
                                     <td width="54" align="center">
-                                        <a href="javascript:void(0)">删除</a>
+                                        <a @click="delIndex=index;showmodal=true" href="javascript:void(0)">删除</a>
                                     </td>
                                 </tr>
                                 <tr>
@@ -111,7 +111,22 @@
                 </div>
             </div>
         </div>
-
+        <Modal v-model="showmodal" width="360">
+            <p slot="header" style="color:#f60;text-align:center">
+                <Icon type="ios-information-circle"></Icon>
+                <span>警告</span>
+            </p>
+            <div style="text-align:center">
+                
+                <p>确定要删除吗?</p>
+            </div>
+            <div slot="footer">
+                <Row>
+                    <Col span="12"><Button type="success" long size="small" @click="showmodal=false" >取消</Button></Col>
+                    <Col span="12"> <Button type="error" long size="small" @click="del"  >确定</Button></Col>
+                </Row> 
+            </div>
+        </Modal>
 
     </div>
 </template>
@@ -121,10 +136,13 @@
         name: 'buyCar',
         data:function () {
             return {
-                message:[]
+                message:[],
+                showmodal:false,
+                delIndex:0
             }
         },
         created () {
+            this.$Spin.show();
             let buyList=this.$store.state.buyList;
             console.log(buyList);
             let ids='';
@@ -134,6 +152,10 @@
             }
             // 切掉最后一个逗号
             ids=ids.slice(0,-1);
+            if(ids==''){
+                this.$Spin.hide();
+                return;
+            }
             this.axios.get(`site/comment/getshopcargoods/${ids}`)
             .then(response=>{
                 // console.log(response);
@@ -142,6 +164,7 @@
                     v.isSelected=true;
                 });
                 this.message=response.data.message;
+                 this.$Spin.hide();
             })
             .catch(err=>{
                 console.log(err);
@@ -166,17 +189,22 @@
                 })
                 return price;
             },
-            // methods: {
-            //     countChange(){
-            //         // console.log(value,index);
-            //         console.log(111);
-                    
-            //         // this.$store.commit('changeCount',{
-            //         //     goodId:this.message[index].id,
-            //         //     goodNum:value
-            //         // })
-            //     }
-            // }
+        },
+        methods: {
+            countChange(value,index){
+                // console.log(value,index);
+                // console.log(111);
+                
+                this.$store.commit('changeCount',{
+                    goodId:this.message[index].id,
+                    goodNum:value
+                })
+            },
+            del(){
+                this.$store.commit('delGoodById',this.message[this.delIndex].id);
+                this.message.splice(this.delIndex,1);
+                this.showmodal=false;
+            }
         }
     }
 </script>

@@ -85,9 +85,13 @@ const store = new Vuex.Store({
         Vue.set(state.buyList,info.goodId ,parseInt( info.goodNum))
       }
     },
-    // changeCount(state,info){
-    //   state.buyList[info.goodId]=info.goodNum;
-    // }
+    changeCount(state,info){
+      state.buyList[info.goodId]=info.goodNum;
+    },
+    delGoodById(state,id){
+      // delete state.buyList[id]
+      Vue.delete(state.buyList,id)
+    }
   }
 })
 
