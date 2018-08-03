@@ -25,6 +25,9 @@ import payOrder from './components/payOrder.vue';
 import login from './components/login.vue';
 import orderInfo from './components/orderInfo.vue';
 import paySuccess from './components/paySuccess.vue';
+import sellCenter from './components/sellCenter.vue';
+import orderCenter from './components/orderCenter.vue';
+import lookOrder from './components/lookOrder.vue';
 
 axios.defaults.baseURL='http://47.106.148.205:8899';
 // 让axios携带cookie,否则一登录就退出来
@@ -49,9 +52,12 @@ const routes = [
   { path: '/', component: index },
   { path: '/index', component: index },
   { path: '/goodsinfo/:id', component: goodsinfo ,meta:{checkLogin:true}},
+  { path: '/lookOrder/:orderId', component: lookOrder ,meta:{checkLogin:true}},
   { path: '/buyCar', component: buyCar },
   { path: '/payOrder/:ids', component: payOrder,meta:{checkLogin:true} },
   { path: '/paySuccess', component: paySuccess,meta:{checkLogin:true} },
+  { path: '/sellCenter', component: sellCenter,meta:{checkLogin:true} },
+  { path: '/orderCenter', component: orderCenter,meta:{checkLogin:true} },
   { path: '/orderInfo/:orderid', component: orderInfo },
   { path: '/login', component: login },
 ]

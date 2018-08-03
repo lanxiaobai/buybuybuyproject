@@ -23,8 +23,10 @@
                                             </div>
                                             <div class="info">
                                                 <strong>订单已支付成功！</strong>
-                                                <p>您可以点击这里进入
-                                                    <a href="/user/center/index.html">会员中心</a>查看订单状态！</p>
+                                                <p>{{time}}秒后返回会员中心</p>
+                                                <p>或者您可以直接点击这里进入
+                                                    <router-link to="/sellCenter">会员中心</router-link>
+                                                    查看订单状态！</p>
                                                 <p>如有其它问题，请立即与我们客服人员联系。</p>
                                             </div>
                                         </div>
@@ -39,7 +41,21 @@
 </template>
 <script>
     export default{
-
+        data:function(){
+            return {
+                time:3
+            }
+        },
+        // 钩子函数
+        mounted(){
+            let timeId=setInterval(()=>{
+                this.time--;
+                if(this.time==0){
+                    clearInterval(timeId);
+                    this.$router.push('/sellCenter');
+                }
+            },1000)
+        }
     }
 </script>
 <style>
