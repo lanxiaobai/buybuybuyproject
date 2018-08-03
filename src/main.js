@@ -24,6 +24,7 @@ import buyCar from './components/buyCar.vue';
 import payOrder from './components/payOrder.vue';
 import login from './components/login.vue';
 import orderInfo from './components/orderInfo.vue';
+import paySuccess from './components/paySuccess.vue';
 
 axios.defaults.baseURL='http://47.106.148.205:8899';
 // 让axios携带cookie,否则一登录就退出来
@@ -47,9 +48,10 @@ Vue.use(Vuex)
 const routes = [
   { path: '/', component: index },
   { path: '/index', component: index },
-  { path: '/goodsinfo/:id', component: goodsinfo },
+  { path: '/goodsinfo/:id', component: goodsinfo ,meta:{checkLogin:true}},
   { path: '/buyCar', component: buyCar },
-  { path: '/payOrder/:ids', component: payOrder },
+  { path: '/payOrder/:ids', component: payOrder,meta:{checkLogin:true} },
+  { path: '/paySuccess', component: paySuccess,meta:{checkLogin:true} },
   { path: '/orderInfo/:orderid', component: orderInfo },
   { path: '/login', component: login },
 ]
@@ -89,7 +91,7 @@ const store = new Vuex.Store({
   },
   mutations: {
     buyGood(state,info){
-      console.log(info);
+      // console.log(info);
       if(state.buyList[info.goodId]){
         let oldNum=parseInt(state.buyList[info.goodId]);
         oldNum+=parseInt( info.goodNum);
@@ -121,10 +123,11 @@ router.beforeEach((to, from, next) => {
   // 保存来时的路由
   store.commit('saveFromPath',from.path)
 
-  if(to.path=='/payOrder'){
+  // if(to.path=='/payOrder'){
+    if(to.meta.checkLogin){
     axios.get('/site/account/islogin')
     .then(response=>{
-      console.log(response);
+      // console.log(response);
       if(response.data.code=='nologin'){
         next('/login');
       }else{
@@ -132,7 +135,7 @@ router.beforeEach((to, from, next) => {
       }
     })
     .catch(err=>{
-      console.log(err);
+      // console.log(err);
     })
   }else{
     next();
